@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OG Title Quiz — Flashscore Editorial Training</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #e8001e;
+    --dark: #0a0a0a;
+    --mid: #1a1a1a;
+    --card: #141414;
+    --border: #2a2a2a;
+    --text: #f0f0f0;
+    --muted: #888;
+    --gold: #f5c518;
+    --green: #22c55e;
+    --orange: #f97316;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(232,0,30,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(232,0,30,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 24px;
+    opacity: 0.9;
+  }
+
+  .logo-mark {
+    width: 36px;
+    height: 36px;
+    background: var(--red);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    color: white;
+    letter-spacing: -1px;
+  }
+
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 6vw, 44px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+
+  h1 span { color: var(--red); }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* Progress */
+  .progress-wrap {
+    margin-bottom: 32px;
+    animation: fadeUp 0.5s ease 0.2s both;
+  }
+
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .progress-label {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .score-display {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+  }
+
+  .score-display .pts { color: var(--gold); }
+
+  .progress-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--red);
+    border-radius: 2px;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Question card */
+  .question-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    animation: fadeUp 0.5s ease 0.3s both;
+    margin-bottom: 24px;
+  }
+
+  .question-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .q-number {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--red);
+    background: rgba(232,0,30,0.1);
+    padding: 4px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .q-label {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 500;
+  }
+
+  .article-title {
+    padding: 20px 24px;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .article-title::before {
+    content: 'Article title:';
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+
+  /* Options */
+  .options {
+    padding: 20px 24px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .option {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    background: transparent;
+    text-align: left;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .option:hover:not(:disabled) {
+    border-color: rgba(232,0,30,0.5);
+    background: rgba(232,0,30,0.04);
+    transform: translateX(3px);
+  }
+
+  .option-letter {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: var(--border);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: all 0.18s ease;
+    font-family: 'Syne', sans-serif;
+  }
+
+  .option:hover:not(:disabled) .option-letter {
+    background: rgba(232,0,30,0.2);
+    color: var(--red);
+  }
+
+  .option.correct {
+    border-color: var(--green);
+    background: rgba(34,197,94,0.06);
+  }
+
+  .option.correct .option-letter {
+    background: var(--green);
+    color: white;
+  }
+
+  .option.wrong {
+    border-color: var(--red);
+    background: rgba(232,0,30,0.06);
+    opacity: 0.7;
+  }
+
+  .option.wrong .option-letter {
+    background: var(--red);
+    color: white;
+  }
+
+  .option.neutral {
+    opacity: 0.4;
+  }
+
+  .option:disabled { cursor: default; transform: none; }
+
+  .option-badge {
+    margin-left: auto;
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'Syne', sans-serif;
+    padding: 2px 8px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .option.correct .option-badge,
+  .option.wrong .option-badge,
+  .option.neutral .option-badge {
+    opacity: 1;
+  }
+
+  .option.correct .option-badge { background: rgba(34,197,94,0.2); color: var(--green); }
+  .option.wrong .option-badge { background: rgba(232,0,30,0.2); color: #ff6b6b; }
+  .option.neutral .option-badge { background: var(--border); color: var(--muted); }
+
+  /* Feedback */
+  .feedback {
+    margin: 0 24px 20px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    line-height: 1.55;
+    display: none;
+    animation: fadeUp 0.3s ease both;
+  }
+
+  .feedback.show { display: block; }
+  .feedback.correct-fb { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); color: #86efac; }
+  .feedback.wrong-fb { background: rgba(232,0,30,0.08); border: 1px solid rgba(232,0,30,0.25); color: #fca5a5; }
+
+  .feedback strong { display: block; margin-bottom: 4px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+  /* Next button */
+  .next-btn {
+    display: none;
+    width: calc(100% - 48px);
+    margin: 0 24px 24px;
+    padding: 14px;
+    background: var(--red);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: all 0.18s ease;
+  }
+
+  .next-btn:hover { background: #c8001a; transform: translateY(-1px); }
+  .next-btn.show { display: block; animation: fadeUp 0.3s ease both; }
+
+  /* Results */
+  .results {
+    display: none;
+    text-align: center;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .results.show { display: block; }
+
+  .results-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 48px 32px;
+    margin-bottom: 24px;
+  }
+
+  .trophy {
+    font-size: 56px;
+    margin-bottom: 16px;
+    display: block;
+    animation: bounce 0.6s ease 0.3s both;
+  }
+
+  .final-score {
+    font-family: 'Syne', sans-serif;
+    font-size: 72px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+
+  .final-max { font-size: 18px; color: var(--muted); margin-bottom: 20px; }
+
+  .result-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 10px;
+  }
+
+  .result-desc { color: var(--muted); font-size: 15px; line-height: 1.6; max-width: 400px; margin: 0 auto 28px; }
+
+  .result-bars {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .result-bar-item {
+    background: var(--mid);
+    border-radius: 10px;
+    padding: 16px 12px;
+  }
+
+  .result-bar-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+
+  .result-bar-label { font-size: 12px; color: var(--muted); }
+
+  .restart-btn {
+    padding: 14px 32px;
+    background: var(--red);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: all 0.18s ease;
+  }
+
+  .restart-btn:hover { background: #c8001a; transform: translateY(-1px); }
+
+  /* Intro */
+  .intro-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    margin-bottom: 24px;
+    animation: fadeUp 0.5s ease 0.3s both;
+  }
+
+  .intro-rules {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin: 24px 0;
+  }
+
+  .rule-box {
+    background: var(--mid);
+    border-radius: 10px;
+    padding: 16px 12px;
+    text-align: center;
+  }
+
+  .rule-pts {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+
+  .rule-label { font-size: 12px; color: var(--muted); line-height: 1.4; }
+
+  .start-btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--red);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 8px;
+  }
+
+  .start-btn:hover { background: #c8001a; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(232,0,30,0.3); }
+
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: none; } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  @keyframes bounce { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-16px); } 70% { transform: translateY(-6px); } }
+
+  @media (max-width: 480px) {
+    .intro-rules, .result-bars { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="logo">
+      <div class="logo-mark">FS</div>
+      <div class="logo-text">Editorial Training</div>
+    </div>
+    <h1>OG Title <span>Quiz</span></h1>
+    <p class="subtitle">Choose the best og:title for each article. Learn which titles perform in Google Discover — and why.</p>
+  </div>
+
+  <!-- Intro -->
+  <div id="intro">
+    <div class="intro-card">
+      <p style="font-size:15px;color:var(--muted);line-height:1.7;margin-bottom:4px;">You'll see 10 real article scenarios. For each one, pick the og:title that would perform best in Google Discover. Each option has a rating:</p>
+      <div class="intro-rules">
+        <div class="rule-box">
+          <div class="rule-pts" style="color:var(--green)">+3</div>
+          <div class="rule-label">Best choice — Discover-optimised</div>
+        </div>
+        <div class="rule-box">
+          <div class="rule-pts" style="color:var(--orange)">+1</div>
+          <div class="rule-label">Acceptable but could be stronger</div>
+        </div>
+        <div class="rule-box">
+          <div class="rule-pts" style="color:#ef4444">+0</div>
+          <div class="rule-label">Weak — would underperform in Discover</div>
+        </div>
+      </div>
+      <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px;">Max score: <strong style="color:var(--text)">30 points</strong>. After each answer you'll see why that title works — or doesn't.</p>
+      <button class="start-btn" onclick="startQuiz()">Start Quiz →</button>
+    </div>
+  </div>
+
+  <!-- Quiz -->
+  <div id="quiz" style="display:none">
+    <div class="progress-wrap">
+      <div class="progress-meta">
+        <span class="progress-label" id="progress-label">Question 1 of 10</span>
+        <span class="score-display">Score: <span class="pts" id="score-val">0</span> pts</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+
+    <div class="question-card">
+      <div class="question-header">
+        <span class="q-number" id="q-number">Q1</span>
+        <span class="q-label">Choose the best og:title</span>
+      </div>
+      <div class="article-title" id="article-title"></div>
+      <div class="options" id="options"></div>
+      <div class="feedback" id="feedback"></div>
+      <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next question →</button>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="results" id="results">
+    <div class="results-card">
+      <span class="trophy" id="trophy">🏆</span>
+      <div class="final-score" id="final-score">0</div>
+      <div class="final-max">out of 30 points</div>
+      <div class="result-title" id="result-title"></div>
+      <div class="result-desc" id="result-desc"></div>
+      <div class="result-bars">
+        <div class="result-bar-item">
+          <div class="result-bar-num" style="color:var(--green)" id="res-best">0</div>
+          <div class="result-bar-label">Best answers (+3)</div>
+        </div>
+        <div class="result-bar-item">
+          <div class="result-bar-num" style="color:var(--orange)" id="res-ok">0</div>
+          <div class="result-bar-label">Acceptable answers (+1)</div>
+        </div>
+        <div class="result-bar-item">
+          <div class="result-bar-num" style="color:#ef4444" id="res-weak">0</div>
+          <div class="result-bar-label">Weak answers (+0)</div>
+        </div>
+      </div>
+      <!-- Submit form -->
+      <div id="submit-form" style="margin-top:24px;border-top:1px solid var(--border);padding-top:24px;">
+        <p style="font-size:14px;color:var(--muted);margin-bottom:16px;">Save your result to the leaderboard — takes 10 seconds.</p>
+        <div style="display:flex;flex-direction:column;gap:10px;max-width:380px;margin:0 auto;">
+          <input id="inp-name" type="text" placeholder="Your name" style="padding:12px 16px;background:var(--mid);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;" />
+          <input id="inp-email" type="email" placeholder="Your work email" style="padding:12px 16px;background:var(--mid);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;" />
+          <button onclick="submitResult()" id="submit-btn" style="padding:13px;background:var(--red);color:white;border:none;border-radius:8px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;transition:background 0.2s;">Save my result →</button>
+        </div>
+        <div id="submit-status" style="margin-top:12px;font-size:13px;display:none;"></div>
+      </div>
+
+      <button class="restart-btn" onclick="restartQuiz()" style="margin-top:16px;">Try again ↺</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const questions = [
+  {
+    article: "Salah ruled out of Liverpool's match at Brighton with muscle injury",
+    options: [
+      {
+        text: "Salah ruled out of Liverpool's match at Brighton with muscle injury",
+        pts: 0,
+        badge: "0 pts",
+        why: "Identical to the title tag — no Discover optimisation. Passive construction 'ruled out', and Brighton as destination is secondary info. Misses the emotional hook."
+      },
+      {
+        text: "Salah injury blow — Liverpool's top-four race takes a major hit",
+        pts: 3,
+        badge: "+3 pts",
+        why: "Strong name first, active language, and emotional stakes ('major hit') make this feed-ready. Discover users scroll fast — this stops the thumb."
+      },
+      {
+        text: "Liverpool's Salah faces late fitness test ahead of Brighton clash",
+        pts: 1,
+        badge: "+1 pt",
+        why: "Better than option A — puts Salah early — but 'late fitness test' is vague and implies uncertainty rather than confirmed news."
+      }
+    ]
+  },
+  {
+    article: "Carrick admits Man Utd's De Ligt could miss rest of season with back injury",
+    options: [
+      {
+        text: "Carrick admits Man Utd's De Ligt could miss rest of season with back injury",
+        pts: 0,
+        badge: "0 pts",
+        why: "Starts with the coach's name (Carrick), not the star (De Ligt). 'Admits' is a weak verb. The emotional story — Man Utd's defensive crisis — is buried."
+      },
+      {
+        text: "De Ligt facing season-ending injury — Man Utd's defensive crisis deepens",
+        pts: 3,
+        badge: "+3 pts",
+        why: "Star player first, strong negative outcome, emotional context. 'Crisis deepens' signals ongoing narrative that Discover rewards with sustained impressions."
+      },
+      {
+        text: "Man Utd defender De Ligt set to miss crucial end of season",
+        pts: 1,
+        badge: "+1 pt",
+        why: "Reasonable but 'set to miss crucial end of season' is generic. No specific emotional hook or consequence stated."
+      }
+    ]
+  },
+  {
+    article: "FIFA planning for World Cup to go ahead as scheduled despite Iran concerns",
+    options: [
+      {
+        text: "FIFA planning for World Cup to 'go ahead as scheduled' despite Iran concerns",
+        pts: 0,
+        badge: "0 pts",
+        why: "'Planning for' and 'go ahead as scheduled' is corporate language. The real story — Iran playing on US soil amid geopolitical tensions — is completely neutralised."
+      },
+      {
+        text: "Iran will play in the USA — FIFA ends World Cup controversy for good",
+        pts: 3,
+        badge: "+3 pts",
+        why: "Geopolitical hook, clear resolution, decisive language. Discover thrives on controversy + resolution stories. Strong enough to earn a click without being clickbait."
+      },
+      {
+        text: "Infantino: 'All teams will play' at World Cup 2026 despite Iran row",
+        pts: 1,
+        badge: "+1 pt",
+        why: "The direct quote adds credibility but 'Iran row' is vague. Infantino is less of a draw than the Iran-USA storyline itself."
+      }
+    ]
+  },
+  {
+    article: "Norwegian FA unhappy with Nike after Haaland presented World Cup shirt early",
+    options: [
+      {
+        text: "Norwegian FA slams Nike over early Haaland World Cup shirt reveal",
+        pts: 3,
+        badge: "+3 pts",
+        why: "Three powerful elements: Haaland (global star), Nike (global brand), conflict ('slams'). All in one sentence. Exactly the kind of story Discover's algorithm prioritises."
+      },
+      {
+        text: "Norwegian FA unhappy with Nike after Haaland presented World Cup shirt early",
+        pts: 1,
+        badge: "+1 pt",
+        why: "Contains the key facts but 'unhappy with' is weak. 'Presented early' buries the drama. The conflict between a federation and a global sponsor deserves stronger language."
+      },
+      {
+        text: "Haaland's World Cup shirt leaked before official launch — Nike faces backlash",
+        pts: 1,
+        badge: "+1 pt",
+        why: "Haaland first is good, 'leaked' adds intrigue — but 'faces backlash' is overused. Still better than the neutral version."
+      }
+    ]
+  },
+  {
+    article: "El Real Madrid convoca las elecciones a su presidencia",
+    options: [
+      {
+        text: "Puntos clave de la convocatoria de elecciones a la presidencia del Madrid",
+        pts: 0,
+        badge: "0 pts",
+        why: "Bureaucratic language. Florentino Pérez — one of football's most powerful names — is completely absent. This reads like an official press release, not a Discover title."
+      },
+      {
+        text: "¿El fin de la era Florentino? Madrid convoca elecciones y todo puede cambiar",
+        pts: 3,
+        badge: "+3 pts",
+        why: "Opens with the emotional question that every Madrid fan is thinking. Florentino is the hook. 'Todo puede cambiar' creates urgency and stakes."
+      },
+      {
+        text: "Real Madrid anuncia elecciones: ¿quién puede suceder a Florentino Pérez?",
+        pts: 1,
+        badge: "+1 pt",
+        why: "Better — includes Florentino as a name and poses a question. But the question format is slightly weaker for Discover than a statement with tension."
+      }
+    ]
+  },
+  {
+    article: "Kane proud of Bayern's 'evolution' as history-making season beckons",
+    options: [
+      {
+        text: "Kane proud of Bayern's 'evolution' as history-making season beckons",
+        pts: 0,
+        badge: "0 pts",
+        why: "'Proud of evolution' is vague. 'History-making season beckons' is a journalistic cliché. Kane is a global name but the title doesn't use him effectively."
+      },
+      {
+        text: "Kane: 'This Bayern team can win everything' — the stats back him up",
+        pts: 3,
+        badge: "+3 pts",
+        why: "Direct quote creates intimacy and confidence. The add-on 'the stats back him up' promises substance. Formats like [Star]: '[Quote]' — [context] consistently outperform in Discover."
+      },
+      {
+        text: "Kane backs Bayern for historic treble as Bundesliga title race heats up",
+        pts: 1,
+        badge: "+1 pt",
+        why: "Active, specific, names the prize (treble). But 'heats up' is another cliché. Still a meaningful improvement over the original."
+      }
+    ]
+  },
+  {
+    article: "Atletico Madrid target Romero remains focused on Spurs' survival bid",
+    options: [
+      {
+        text: "Atletico Madrid target Romero remains focused on Spurs' survival bid",
+        pts: 0,
+        badge: "0 pts",
+        why: "Starts with the target club (Atletico), not the player. 'Remains focused' is a classic press-conference cliché. The real story — a player rejecting a big club to fight relegation — is buried."
+      },
+      {
+        text: "Romero rejects Atletico and stays to save Spurs from the drop",
+        pts: 3,
+        badge: "+3 pts",
+        why: "Player first, clear action verb ('rejects'), emotional stakes ('save Spurs from the drop'). Loyalty + relegation battle is a compelling Discover narrative."
+      },
+      {
+        text: "Romero focused on keeping Spurs up despite Atletico Madrid interest",
+        pts: 1,
+        badge: "+1 pt",
+        why: "Better structure — player first, clearer stakes — but 'focused on' is still weak. 'Interest' understates what sounds like a firm transfer approach."
+      }
+    ]
+  },
+  {
+    article: "Löw sieht Verbesserungspotenzial beim DFB-Team vor der WM 2026",
+    options: [
+      {
+        text: "Löw sieht Verbesserungspotenzial beim DFB-Team vor der WM 2026",
+        pts: 0,
+        badge: "0 pts",
+        why: "'Sieht Verbesserungspotenzial' is corporate language — it's what a CEO says in an earnings call, not a football legend. The actual quote ('Deutschland kann vielleicht alles zutrauen') is completely missing."
+      },
+      {
+        text: "Löw: 'Deutschland kann man vielleicht alles zutrauen' — aber dieser Schwachpunkt bleibt",
+        pts: 3,
+        badge: "+3 pts",
+        why: "The direct quote creates genuine emotion. The contrast ('aber dieser Schwachpunkt') adds tension and makes the reader want to know more. Classic Discover structure."
+      },
+      {
+        text: "Ex-Bundestrainer Löw gibt DFB vor WM 2026 Rückenwind — mit einem Aber",
+        pts: 1,
+        badge: "+1 pt",
+        why: "'Mit einem Aber' creates intrigue and is a good Discover hook. 'Rückenwind' is active and positive. Better than option A, but the direct quote in option B is stronger."
+      }
+    ]
+  },
+  {
+    article: "Calendarul sportiv 2026: Cele mai importante evenimente ale anului",
+    options: [
+      {
+        text: "Calendarul sportiv 2026: Cele mai importante evenimente ale anului",
+        pts: 0,
+        badge: "0 pts",
+        why: "Generic — could belong to any website. No strong names, no emotional hook, no specific detail that makes you want to click. Purely informational for Search, not Discover."
+      },
+      {
+        text: "Olimpiadă, Mondial, Federer în Hall of Fame: Tot ce nu trebuie să ratezi în 2026",
+        pts: 3,
+        badge: "+3 pts",
+        why: "Three powerful names/events create immediate FOMO. 'Tot ce nu trebuie să ratezi' ('everything you must not miss') triggers the completionist instinct — a known Discover driver."
+      },
+      {
+        text: "Cele mai mari evenimente sportive din 2026: ghid complet cu date și transmisiuni",
+        pts: 1,
+        badge: "+1 pt",
+        why: "'Ghid complet' signals depth and value. But still generic — no specific hooks like World Cup or Olympics mentioned to trigger emotional interest."
+      }
+    ]
+  },
+  {
+    article: "Jak będzie działał nowy format Mistrzostw Świata 2026 z udziałem 48 drużyn?",
+    options: [
+      {
+        text: "Jak będzie działał nowy format Mistrzostw Świata 2026 z udziałem 48 drużyn?",
+        pts: 0,
+        badge: "0 pts",
+        why: "'48 drużyn' is a technical fact without emotional context. The question format is good for Discover but 'jak będzie działał' ('how will it work') is dry and functional."
+      },
+      {
+        text: "Mundial 2026 zmienia zasady gry: co nowy format oznacza dla Polski i reszty świata",
+        pts: 3,
+        badge: "+3 pts",
+        why: "'Zmienia zasady gry' (changes the rules of the game) is both literal and metaphorical — a strong hook. Local relevance ('dla Polski') dramatically increases Discover click-through for Polish users."
+      },
+      {
+        text: "Mundial 2026: 48 drużyn, nowy format, nowe szanse — wszystko co musisz wiedzieć",
+        pts: 1,
+        badge: "+1 pt",
+        why: "Listicle-style structure works reasonably well. 'Nowe szanse' adds optimism. But 'wszystko co musisz wiedzieć' ('everything you need to know') is overused."
+      }
+    ]
+  }
+];
+
+let current = 0;
+let score = 0;
+let answered = false;
+let bestCount = 0;
+let okCount = 0;
+let weakCount = 0;
+const letters = ['A','B','C'];
+
+function startQuiz() {
+  document.getElementById('intro').style.display = 'none';
+  document.getElementById('quiz').style.display = 'block';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  answered = false;
+  const q = questions[current];
+  const shuffled = shuffle([...q.options.map((o,i) => ({...o, orig: i}))]);
+
+  document.getElementById('q-number').textContent = `Q${current + 1}`;
+  document.getElementById('progress-label').textContent = `Question ${current + 1} of ${questions.length}`;
+  document.getElementById('progress-fill').style.width = `${(current / questions.length) * 100}%`;
+  document.getElementById('article-title').textContent = q.article;
+
+  const optionsEl = document.getElementById('options');
+  optionsEl.innerHTML = '';
+
+  shuffled.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.dataset.pts = opt.pts;
+    btn.dataset.why = opt.why;
+
+    btn.innerHTML = `
+      <span class="option-letter">${letters[i]}</span>
+      <span style="flex:1">${opt.text}</span>
+      <span class="option-badge">${opt.badge}</span>
+    `;
+    btn.onclick = () => selectOption(btn, shuffled, i);
+    optionsEl.appendChild(btn);
+  });
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback';
+  fb.innerHTML = '';
+
+  const nextBtn = document.getElementById('next-btn');
+  nextBtn.className = 'next-btn';
+  nextBtn.textContent = current < questions.length - 1 ? 'Next question →' : 'See results →';
+}
+
+function selectOption(selected, opts, selectedIdx) {
+  if (answered) return;
+  answered = true;
+
+  const pts = parseInt(selected.dataset.pts);
+  score += pts;
+  document.getElementById('score-val').textContent = score;
+
+  if (pts === 3) bestCount++;
+  else if (pts === 1) okCount++;
+  else weakCount++;
+
+  const allBtns = document.querySelectorAll('.option');
+  allBtns.forEach((btn, i) => {
+    btn.disabled = true;
+    const bPts = parseInt(btn.dataset.pts);
+    if (btn === selected) {
+      btn.className = pts === 3 ? 'option correct' : pts === 1 ? 'option wrong' : 'option wrong';
+    } else if (bPts === 3) {
+      btn.className = 'option correct';
+    } else {
+      btn.className = 'option neutral';
+    }
+  });
+
+  const fb = document.getElementById('feedback');
+  if (pts === 3) {
+    fb.className = 'feedback show correct-fb';
+    fb.innerHTML = `<strong>✓ Best choice — +3 points</strong>${selected.dataset.why}`;
+  } else if (pts === 1) {
+    fb.className = 'feedback show wrong-fb';
+    fb.innerHTML = `<strong>~ Acceptable — +1 point</strong>${selected.dataset.why}`;
+    // Also show why the best is better
+    const best = Array.from(allBtns).find(b => parseInt(b.dataset.pts) === 3);
+    if (best) fb.innerHTML += `<br><br><span style="color:var(--green);font-size:13px;font-weight:600;">Why the best answer is stronger:</span><br>${best.dataset.why}`;
+  } else {
+    fb.className = 'feedback show wrong-fb';
+    fb.innerHTML = `<strong>✗ Weak choice — +0 points</strong>${selected.dataset.why}`;
+    const best = Array.from(allBtns).find(b => parseInt(b.dataset.pts) === 3);
+    if (best) fb.innerHTML += `<br><br><span style="color:var(--green);font-size:13px;font-weight:600;">The best answer:</span><br>${best.dataset.why}`;
+  }
+
+  document.getElementById('next-btn').className = 'next-btn show';
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= questions.length) {
+    showResults();
+  } else {
+    renderQuestion();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function showResults() {
+  document.getElementById('quiz').style.display = 'none';
+  const results = document.getElementById('results');
+  results.classList.add('show');
+
+  document.getElementById('final-score').textContent = score;
+  document.getElementById('res-best').textContent = bestCount;
+  document.getElementById('res-ok').textContent = okCount;
+  document.getElementById('res-weak').textContent = weakCount;
+
+  let trophy, title, desc;
+  if (score >= 27) {
+    trophy = '🏆'; title = 'Discover Master'; desc = 'Outstanding. You have a strong instinct for what works in Google Discover. Your og:titles would drive real traffic.';
+  } else if (score >= 21) {
+    trophy = '🥇'; title = 'Solid Editor'; desc = 'Great work. You understand the key principles — strong names, active language, emotional hooks. A few edge cases to sharpen.';
+  } else if (score >= 14) {
+    trophy = '🥈'; title = 'Learning Fast'; desc = 'Good foundation. You\'re picking up the patterns. Focus on putting star names first and avoiding corporate language.';
+  } else {
+    trophy = '📚'; title = 'Keep Practising'; desc = 'Every expert started here. Review the feedback on each question and try again — the patterns will become instinctive.';
+  }
+
+  document.getElementById('trophy').textContent = trophy;
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-desc').textContent = desc;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function restartQuiz() {
+  current = 0; score = 0; answered = false;
+  bestCount = 0; okCount = 0; weakCount = 0;
+  document.getElementById('score-val').textContent = '0';
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('submit-form').style.display = 'block';
+  document.getElementById('submit-status').style.display = 'none';
+  document.getElementById('inp-name').value = '';
+  document.getElementById('inp-email').value = '';
+  document.getElementById('submit-btn').disabled = false;
+  document.getElementById('submit-btn').textContent = 'Save my result →';
+  document.getElementById('quiz').style.display = 'block';
+  renderQuestion();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function submitResult() {
+  const name = document.getElementById('inp-name').value.trim();
+  const email = document.getElementById('inp-email').value.trim();
+  const btn = document.getElementById('submit-btn');
+  const status = document.getElementById('submit-status');
+
+  if (!name || !email) {
+    status.style.display = 'block';
+    status.style.color = '#fca5a5';
+    status.textContent = 'Please enter your name and email.';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+  status.style.display = 'none';
+
+  const level = document.getElementById('result-title').textContent;
+
+  try {
+    await fetch('https://script.google.com/macros/s/AKfycbyZpYKwfawAQuMiaboHrtan4Yna5eRioCb0ow-QJ35aCdn9ujf_zXYkAUZp-GH1Hdn6/exec', {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, score, maxScore: 30, level })
+    });
+    btn.textContent = '✓ Saved!';
+    btn.style.background = 'var(--green)';
+    status.style.display = 'block';
+    status.style.color = '#86efac';
+    status.textContent = 'Your result has been recorded. Thanks!';
+    document.getElementById('submit-form').style.display = 'none';
+    document.getElementById('submit-status').style.display = 'block';
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = 'Save my result →';
+    status.style.display = 'block';
+    status.style.color = '#fca5a5';
+    status.textContent = 'Something went wrong. Please try again.';
+  }
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+</script>
+</body>
+</html>
